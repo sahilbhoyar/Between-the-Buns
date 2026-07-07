@@ -1,123 +1,105 @@
-<<<<<<< HEAD
 /**
- * Senior UX Architecture: Infinite Loop Touch/Drag Responsive Menu Carousel
+ * Infinite Loop Touch/Drag Responsive Menu Carousel Engine
  */
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const container = document.querySelector('.carousel-track-container');
     const prevBtn = document.querySelector('.prev-btn');
     const nextBtn = document.querySelector('.next-btn');
-    const originalCards = Array.from(document.querySelectorAll('.menu-card'));
+    const originalCards = Array.from(track.children);
     
-    // Configurable Responsive Breakpoints (matching Card Width + Gaps)
+    // Configurable Responsive Breakpoints Metrics
     const cardWidth = 160;
     const gap = 24;
     const scrollStep = cardWidth + gap;
+    const totalOriginals = originalCards.length;
     
+    let currentIndex = totalOriginals; // Center baseline start position post-cloning
     let isDragging = false;
     let startX = 0;
     let currentTranslate = 0;
     let prevTranslate = 0;
-    let animationId = 0;
     let autoPlayTimer = null;
-    let visibleCardsCount = 6; 
 
     // --- INFINITE LOOP CLONING ENGINE ---
-    // Clone sequences front and back to guarantee seamless dynamic looping vectors
-    const cloneCount = 12; 
-    for(let i = 0; i < cloneCount; i++) {
-        const cloneFirst = originalCards[i % originalCards.length].cloneNode(true);
-        const cloneLast = originalCards[originalCards.length - 1 - (i % originalCards.length)].cloneNode(true);
-        cloneFirst.classList.add('cloned');
+    // Clone complete card set to left and right sides to handle high-width displays cleanly
+    originalCards.forEach(card => {
+        const cloneLast = card.cloneNode(true);
         cloneLast.classList.add('cloned');
-        track.appendChild(cloneFirst);
-        track.insertBefore(cloneLast, track.firstChild);
+        track.appendChild(cloneLast);
+    });
+
+    originalCards.slice().reverse().forEach(card => {
+        const cloneFirst = card.cloneNode(true);
+        cloneFirst.classList.add('cloned');
+        track.insertBefore(cloneFirst, track.firstChild);
+    });
+
+    // Update coordinates positions 
+    function updatePosition() {
+        currentTranslate = -currentIndex * scrollStep;
+        prevTranslate = currentTranslate;
+        track.style.transform = `translateX(${currentTranslate}px)`;
     }
 
-    const totalClonesBefore = cloneCount;
-    const initialOffset = -(totalClonesBefore * scrollStep);
-    
-    // Initialize Positioning Tracking Matrix
-    currentTranslate = initialOffset;
-    prevTranslate = initialOffset;
-    setTrackPosition(currentTranslate);
+    // Initialize baseline alignment offset position
+    track.style.transition = 'none';
+    updatePosition();
 
-    // --- RESPONSIVE CAPACITY MONITORING ---
+    // --- RESPONSIVE MAX-WIDTH ADJUSTMENTS ---
     function updateResponsiveView() {
         const width = window.innerWidth;
-        if (width >= 1200) visibleCardsCount = 8;
-        else if (width >= 992) visibleCardsCount = 6;
-        else if (width >= 768) visibleCardsCount = 4;
+        let visibleCardsCount = 6;
+
+        if (width >= 1200) visibleCardsCount = 6;
+        else if (width >= 992) visibleCardsCount = 5;
+        else if (width >= 768) visibleCardsCount = 3;
         else if (width >= 480) visibleCardsCount = 2;
         else visibleCardsCount = 1;
-        
-        // Dynamically size viewport based on accurate responsive layout structures
-        container.style.width = `${(visibleCardsCount * cardWidth) + ((visibleCardsCount - 1) * gap)}px`;
+
+        container.style.maxWidth = `${(visibleCardsCount * cardWidth) + ((visibleCardsCount - 1) * gap)}px`;
+        track.style.transition = 'none';
+        updatePosition();
     }
     
-    window.addEventListener('resize', () => {
-        updateResponsiveView();
-        jumpToBoundary();
-    });
+    window.addEventListener('resize', updateResponsiveView);
     updateResponsiveView();
 
-    // --- INTERSECTION OBSERVER (LAZY LOADING) ---
-    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                observer.unobserve(img);
-            }
-        });
-    }, { root: container, rootMargin: '0px 200px 0px 200px' });
-
-    document.querySelectorAll('.menu-img').forEach(img => lazyImageObserver.observe(img));
-
-    // --- TRANSITION CONTROLLER ---
-    function setTrackPosition(trans) {
-        track.style.transform = `translateX(${trans}px)`;
-    }
-
-    function animateToPosition(target) {
-        track.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        currentTranslate = target;
-        prevTranslate = target;
-        setTrackPosition(currentTranslate);
-    }
-
-    // Seamless loop resetting without UI flash
-    function jumpToBoundary() {
-        track.style.transition = 'none';
-        const currentElementsCount = originalCards.length;
-        const totalTrackWidth = currentElementsCount * scrollStep;
-
-        if (currentTranslate > initialOffset) {
-            currentTranslate -= totalTrackWidth;
-        } else if (currentTranslate < (initialOffset - totalTrackWidth)) {
-            currentTranslate += totalTrackWidth;
+    // --- CAROUSEL ANIMATOR / CYCLE CONTROLLERS ---
+    function moveToIndex(index, animate = true) {
+        currentIndex = index;
+        if (animate) {
+            track.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        } else {
+            track.style.transition = 'none';
         }
-        prevTranslate = currentTranslate;
-        setTrackPosition(currentTranslate);
+        updatePosition();
     }
 
-    track.addEventListener('transitionend', jumpToBoundary);
-
-    // --- ACTION HANDLERS ---
     function moveNext() {
-        animateToPosition(currentTranslate - scrollStep);
+        moveToIndex(currentIndex + 1);
     }
 
     function movePrev() {
-        animateToPosition(currentTranslate + scrollStep);
+        moveToIndex(currentIndex - 1);
     }
 
+    // Boundary edge warping loops check
+    track.addEventListener('transitionend', () => {
+        if (currentIndex >= totalOriginals * 2) {
+            moveToIndex(currentIndex - totalOriginals, false);
+        } else if (currentIndex < totalOriginals) {
+            moveToIndex(currentIndex + totalOriginals, false);
+        }
+    });
+
+    // Arrow controls assignments
     nextBtn.addEventListener('click', () => { moveNext(); resetAutoplay(); });
     prevBtn.addEventListener('click', () => { movePrev(); resetAutoplay(); });
 
-    // --- AUTOPLAY LOOP MANAGER ---
+    // --- AUTOPLAY LOOP CONTROLS ---
     function startAutoplay() {
-        if(!autoPlayTimer) {
+        if (!autoPlayTimer) {
             autoPlayTimer = setInterval(moveNext, 3000);
         }
     }
@@ -132,18 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
         startAutoplay();
     }
 
-    // Pause Carousel during Hover States
+    // Pause on hovering interactions
     container.addEventListener('mouseenter', stopAutoplay);
     container.addEventListener('mouseleave', startAutoplay);
     startAutoplay();
 
-    // --- ACCESSIBLE KEYBOARD CONTROLS ---
+    // Accessible hotkeys bindings
     window.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight') { moveNext(); resetAutoplay(); }
         if (e.key === 'ArrowLeft') { movePrev(); resetAutoplay(); }
     });
 
-    // --- MOUSE DRAG & TOUCH ACTION CONTROLS ---
+    // --- POINTER / DRAG AND TOUCH CONFIGURATION ---
     container.addEventListener('mousedown', startDrag);
     container.addEventListener('touchstart', startDrag, { passive: true });
     window.addEventListener('mousemove', dragMove);
@@ -151,12 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', endDrag);
     window.addEventListener('touchend', endDrag);
 
+    function getPositionX(e) {
+        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    }
+
     function startDrag(e) {
         isDragging = true;
         stopAutoplay();
         startX = getPositionX(e);
         track.style.transition = 'none';
-        animationId = requestAnimationFrame(animationLoop);
     }
 
     function dragMove(e) {
@@ -164,223 +149,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentX = getPositionX(e);
         const diff = currentX - startX;
         currentTranslate = prevTranslate + diff;
+        track.style.transform = `translateX(${currentTranslate}px)`;
     }
 
     function endDrag() {
         if (!isDragging) return;
         isDragging = false;
-        cancelAnimationFrame(animationId);
-
-        const movedBy = currentTranslate - prevTranslate;
-        // Evaluate threshold snap vector allocations
-        if (movedBy < -50) moveNext();
-        else if (movedBy > 50) movePrev();
-        else animateToPosition(prevTranslate);
-
-        startAutoplay();
-    }
-
-    function getPositionX(e) {
-        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    }
-
-    function animationLoop() {
-        if (isDragging) {
-            setTrackPosition(currentTranslate);
-            requestAnimationFrame(animationLoop);
-        }
-    }
-=======
-/**
- * Senior UX Architecture: Infinite Loop Touch/Drag Responsive Menu Carousel
- */
-document.addEventListener('DOMContentLoaded', () => {
-    const track = document.querySelector('.carousel-track');
-    const container = document.querySelector('.carousel-track-container');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    const originalCards = Array.from(document.querySelectorAll('.menu-card'));
-    
-    // Configurable Responsive Breakpoints (matching Card Width + Gaps)
-    const cardWidth = 160;
-    const gap = 24;
-    const scrollStep = cardWidth + gap;
-    
-    let isDragging = false;
-    let startX = 0;
-    let currentTranslate = 0;
-    let prevTranslate = 0;
-    let animationId = 0;
-    let autoPlayTimer = null;
-    let visibleCardsCount = 6; 
-
-    // --- INFINITE LOOP CLONING ENGINE ---
-    // Clone sequences front and back to guarantee seamless dynamic looping vectors
-    const cloneCount = 12; 
-    for(let i = 0; i < cloneCount; i++) {
-        const cloneFirst = originalCards[i % originalCards.length].cloneNode(true);
-        const cloneLast = originalCards[originalCards.length - 1 - (i % originalCards.length)].cloneNode(true);
-        cloneFirst.classList.add('cloned');
-        cloneLast.classList.add('cloned');
-        track.appendChild(cloneFirst);
-        track.insertBefore(cloneLast, track.firstChild);
-    }
-
-    const totalClonesBefore = cloneCount;
-    const initialOffset = -(totalClonesBefore * scrollStep);
-    
-    // Initialize Positioning Tracking Matrix
-    currentTranslate = initialOffset;
-    prevTranslate = initialOffset;
-    setTrackPosition(currentTranslate);
-
-    // --- RESPONSIVE CAPACITY MONITORING ---
-    function updateResponsiveView() {
-        const width = window.innerWidth;
-        if (width >= 1200) visibleCardsCount = 8;
-        else if (width >= 992) visibleCardsCount = 6;
-        else if (width >= 768) visibleCardsCount = 4;
-        else if (width >= 480) visibleCardsCount = 2;
-        else visibleCardsCount = 1;
         
-        // Dynamically size viewport based on accurate responsive layout structures
-        container.style.width = `${(visibleCardsCount * cardWidth) + ((visibleCardsCount - 1) * gap)}px`;
-    }
-    
-    window.addEventListener('resize', () => {
-        updateResponsiveView();
-        jumpToBoundary();
-    });
-    updateResponsiveView();
-
-    // --- INTERSECTION OBSERVER (LAZY LOADING) ---
-    const lazyImageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                observer.unobserve(img);
-            }
-        });
-    }, { root: container, rootMargin: '0px 200px 0px 200px' });
-
-    document.querySelectorAll('.menu-img').forEach(img => lazyImageObserver.observe(img));
-
-    // --- TRANSITION CONTROLLER ---
-    function setTrackPosition(trans) {
-        track.style.transform = `translateX(${trans}px)`;
-    }
-
-    function animateToPosition(target) {
-        track.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        currentTranslate = target;
-        prevTranslate = target;
-        setTrackPosition(currentTranslate);
-    }
-
-    // Seamless loop resetting without UI flash
-    function jumpToBoundary() {
-        track.style.transition = 'none';
-        const currentElementsCount = originalCards.length;
-        const totalTrackWidth = currentElementsCount * scrollStep;
-
-        if (currentTranslate > initialOffset) {
-            currentTranslate -= totalTrackWidth;
-        } else if (currentTranslate < (initialOffset - totalTrackWidth)) {
-            currentTranslate += totalTrackWidth;
-        }
-        prevTranslate = currentTranslate;
-        setTrackPosition(currentTranslate);
-    }
-
-    track.addEventListener('transitionend', jumpToBoundary);
-
-    // --- ACTION HANDLERS ---
-    function moveNext() {
-        animateToPosition(currentTranslate - scrollStep);
-    }
-
-    function movePrev() {
-        animateToPosition(currentTranslate + scrollStep);
-    }
-
-    nextBtn.addEventListener('click', () => { moveNext(); resetAutoplay(); });
-    prevBtn.addEventListener('click', () => { movePrev(); resetAutoplay(); });
-
-    // --- AUTOPLAY LOOP MANAGER ---
-    function startAutoplay() {
-        if(!autoPlayTimer) {
-            autoPlayTimer = setInterval(moveNext, 3000);
-        }
-    }
-
-    function stopAutoplay() {
-        clearInterval(autoPlayTimer);
-        autoPlayTimer = null;
-    }
-
-    function resetAutoplay() {
-        stopAutoplay();
-        startAutoplay();
-    }
-
-    // Pause Carousel during Hover States
-    container.addEventListener('mouseenter', stopAutoplay);
-    container.addEventListener('mouseleave', startAutoplay);
-    startAutoplay();
-
-    // --- ACCESSIBLE KEYBOARD CONTROLS ---
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') { moveNext(); resetAutoplay(); }
-        if (e.key === 'ArrowLeft') { movePrev(); resetAutoplay(); }
-    });
-
-    // --- MOUSE DRAG & TOUCH ACTION CONTROLS ---
-    container.addEventListener('mousedown', startDrag);
-    container.addEventListener('touchstart', startDrag, { passive: true });
-    window.addEventListener('mousemove', dragMove);
-    window.addEventListener('touchmove', dragMove, { passive: true });
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('touchend', endDrag);
-
-    function startDrag(e) {
-        isDragging = true;
-        stopAutoplay();
-        startX = getPositionX(e);
-        track.style.transition = 'none';
-        animationId = requestAnimationFrame(animationLoop);
-    }
-
-    function dragMove(e) {
-        if (!isDragging) return;
-        const currentX = getPositionX(e);
-        const diff = currentX - startX;
-        currentTranslate = prevTranslate + diff;
-    }
-
-    function endDrag() {
-        if (!isDragging) return;
-        isDragging = false;
-        cancelAnimationFrame(animationId);
-
         const movedBy = currentTranslate - prevTranslate;
-        // Evaluate threshold snap vector allocations
-        if (movedBy < -50) moveNext();
-        else if (movedBy > 50) movePrev();
-        else animateToPosition(prevTranslate);
-
+        
+        // Threshold check to trigger card index switches
+        if (movedBy < -50) {
+            moveNext();
+        } else if (movedBy > 50) {
+            movePrev();
+        } else {
+            moveToIndex(currentIndex); // Snap back to current element
+        }
         startAutoplay();
     }
-
-    function getPositionX(e) {
-        return e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-    }
-
-    function animationLoop() {
-        if (isDragging) {
-            setTrackPosition(currentTranslate);
-            requestAnimationFrame(animationLoop);
-        }
-    }
->>>>>>> b0d68e19748d011475c11901babbd461d6cfc67e
 });
