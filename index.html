@@ -369,14 +369,16 @@ body {
 }
 
 .menu-img {
-    width: 50%;
-    height: 50%;
-    object-fit: cover;
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
     transition: var(--transition-smooth);
 }
 
 .menu-card:hover .menu-img {
-    transform: rotate(5deg) scale(1.1);
+    transform: rotate(5deg) scale(1.08);
 }
 
 .card-title {
