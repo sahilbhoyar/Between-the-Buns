@@ -334,6 +334,26 @@
             padding: 2rem;
             margin-top: 3rem;
         }
+
+        /* ==========================================
+       CAROUSEL LINK FIXES (Removes Underlines)
+       ========================================== */
+    .menu-card-link {
+        text-decoration: none; /* Removes default browser underline */
+        color: inherit;        /* Inherits the original dark color from parent */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /* Optional: Subtle image scale effect on hover to show interactivity */
+    .menu-card-link:hover .menu-img {
+        transform: rotate(5deg) scale(1.08);
+        transition: var(--transition-smooth);
+    }
     </style>
 </head>
 <body>
@@ -361,95 +381,110 @@
     </section>
 
     <section class="menu-section" aria-labelledby="menu-heading">
-        <div class="menu-container">
-            
-            <div class="menu-header">
-                <h2 id="menu-heading" class="menu-title">OUR MENU</h2>
-                <a href="#" class="see-all-btn" aria-label="See all menu categories">
-                    See All <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                </a>
-            </div>
+    <div class="menu-container">
+        
+        <div class="menu-header">
+            <h2 id="menu-heading" class="menu-title">OUR MENU</h2>
+            <a href="Menu.html" class="see-all-btn" aria-label="See all menu categories">
+                See All <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
 
-            <div class="carousel-wrapper">
-                <button class="nav-btn prev-btn" aria-label="Previous menu items">
-                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-                </button>
+        <div class="carousel-wrapper">
+            <button class="nav-btn prev-btn" aria-label="Previous menu items">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
 
-                <div class="carousel-track-container">
-                    <div class="carousel-track" role="region" aria-label="Menu Items Slider">
-                        
-                        <div class="menu-card" role="group">
+            <div class="carousel-track-container">
+                <div class="carousel-track" role="region" aria-label="Menu Items Slider">
+                    
+                    <div class="menu-card" role="group" aria-label="1 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/classic beast.jpg" alt="Classic Beast" class="menu-img">
+                                <img src="Images/classic beast.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Classic Beast</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="4 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/cheese burger.jpg" alt="Cheese Burgers" class="menu-img">
+                                <img src="Images/cheese burger.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Cheese Burgers</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="5 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/double trouble.jpg" alt="Double Trouble" class="menu-img">
+                                <img src="Images/double trouble.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Double Trouble</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="6 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                               <img src="Images/spicy inferno.jpg" alt="Spicy Inferno" class="menu-img">
+                               <img src="Images/spicy inferno.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Spicy Inferno</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="7 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/beccon paradise.jpg" alt="Bacon Paradise" class="menu-img">
+                                <img src="Images/beccon paradise.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Bacon Paradise</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="8 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/mashroon maddness.jpg" alt="Mushroom Madness" class="menu-img">
+                                <img src="Images/mashroon maddness.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">Mushroom Madness</span>
-                        </div>
+                        </a>
+                    </div>
 
-                        <div class="menu-card" role="group">
+                    <div class="menu-card" role="group" aria-label="9 of 12">
+                        <a href="Menu.html" class="menu-card-link">
                             <div class="image-wrapper">
-                                <img src="Images/The Ultimate Beast.jpg" alt="The Ultimate Beast" class="menu-img">
+                                <img src="Images/The Ultimate Beast.jpg" alt="Premium Burgers" class="menu-img">
                             </div>
                             <span class="card-title">The Ultimate Beast</span>
-                        </div>
-
-                        <div class="menu-card" role="group">
-                            <div class="image-wrapper">
-                            <img src="Images/Bevarages_wb.png" alt="Beverages" class="menu-img">
-                        </div>
-                            <span class="card-title">Beverages</span>
-                        </div>
-
+                        </a>
                     </div>
+
+                    <div class="menu-card" role="group" aria-label="10 of 12">
+                        <a href="Menu.html" class="menu-card-link">
+                            <div class="image-wrapper">
+                                <img src="Images/Bevarages_wb.png" alt="Premium Burgers" class="menu-img">
+                            </div>
+                            <span class="card-title">Beverages</span>
+                        </a>
+                    </div>
+
                 </div>
-
-                <button class="nav-btn next-btn" aria-label="Next menu items">
-                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-                </button>
             </div>
-
-            <div class="menu-footer">
-                <button class="explore-btn">
-                    EXPLORE FULL MENU
-                </button>
-            </div>
-
+            <button class="nav-btn next-btn" aria-label="Next menu items">
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
         </div>
-    </section>
+
+        <div class="menu-footer">
+            <button class="explore-btn" onclick="window.location.href='Menu.html'">
+                EXPLORE FULL MENU
+            </button>
+        </div>
+
+    </div>
+</section>
 
     <section class="menu-section" id="about">
         <h2 class="menu-title" style="text-align: center; margin-bottom: 2rem;">About Us</h2>
